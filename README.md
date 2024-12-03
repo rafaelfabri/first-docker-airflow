@@ -9,7 +9,7 @@ docker build -t rafaelfabri/my-airflow-2.7.2:1.0 .
 ```
 
 ```bash
-docker-compose build
+docker-compose --env-file env/.env build
 ```
 
 Posteriormente criado um docker-compose.yaml simples apenas com 3 servicos:
@@ -17,4 +17,8 @@ Posteriormente criado um docker-compose.yaml simples apenas com 3 servicos:
 * scheduler
 * postegres
 
+
+```bash
+docker-compose --env-file env/.env up
+```
 

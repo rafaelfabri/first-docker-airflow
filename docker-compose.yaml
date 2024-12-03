@@ -13,7 +13,7 @@ x-airflow-common:
   environment:
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
     AIRFLOW_CONN_METADATA_DB: "postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}"
-    AIRFLOW_VAR__METADATA_DB_SCHEMA: airflow
+    #AIRFLOW_VAR__METADATA_DB_SCHEMA: airflow
     AIRFLOW__SCHEDULER__SCHEDULER_HEARTBEAT_SEC: 5
     AIRFLOW__CORE__EXECUTOR: 'LocalExecutor'
     _AIRFLOW_DB_MIGRATE: 'true'
@@ -22,14 +22,16 @@ x-airflow-common:
     _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD}
   
   volumes:
-    - ${AIRFLOW_PROJ_DIR}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR}/plugins:/opt/airflow/plugins
+    - ./dags:/opt/airflow/dags
+    #- ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
     
 services:
   postgres:
     image: postgres:17
+    
+    volumes:
+      - backup_postgresql_airflow:/var/lib/postgresql/data
     
     ports:
       - "5432:5432"
@@ -37,13 +39,12 @@ services:
     env_file: 
       - "./env/.env"
       
-    volumes:
-      - "backup_postgresql_airflow:/var/lib/postgresql/data"
-   
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+
       
   webserver:
     <<: *airflow-common
@@ -62,6 +63,9 @@ services:
     depends_on:
       - postegres
       - webserver
+      
+volumes:
+  backup_postgresql_airflow:
     
     
     
